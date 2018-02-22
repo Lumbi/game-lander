@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./build/",
+    "strict": true,
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "target": "es5"
+  },
+  "include": [
+    "./node_modules/phaser/typescript/phaser.d.ts",
+    "./src/**/*.ts"
+  ]
+}
