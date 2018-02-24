@@ -8,7 +8,8 @@
     "semicolon": [true, "never"],
     "object-literal-sort-keys": [false],
     "max-classes-per-file": [false],
-    "no-unused-expression": [true, "allow-fast-null-checks"]
+    "no-unused-expression": [true, "allow-fast-null-checks"],
+    "ordered-imports": [true, { "import-sources-order": "any", "grouped-imports": "true" }]
   },
   "rulesDirectory": []
 }
