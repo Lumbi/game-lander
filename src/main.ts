@@ -1,7 +1,6 @@
-import "phaser-ce"
-// import { Physics } from "phaser-ce"
-import "phaser-ce/build/custom/p2"
 import "phaser-ce/build/custom/pixi"
+import "phaser-ce/build/custom/p2"
+import "phaser-ce"
 import { ANIMATIONS, PHYSICS, SPRITES } from "./constants"
 import { Lander } from "./lander"
 
