@@ -3,9 +3,10 @@ import { ANIMATIONS, PHYSICS, SPRITES } from "./constants"
 
 export class Lander {
 
+  public readonly sprite: Phaser.Sprite
+  public alive: boolean
+
   private game: Phaser.Game
-  private alive: boolean
-  private sprite: Phaser.Sprite
   private thrusterEnabled: boolean
   private thrusterEmitter: Phaser.Particles.Arcade.Emitter
   private explosion: Phaser.Sprite
@@ -28,6 +29,8 @@ export class Lander {
     const landerBody = this.sprite.body as Physics.Arcade.Body
     landerBody.collideWorldBounds = true
     landerBody.allowRotation = false
+    landerBody.drag.x = PHYSICS.landerDragX
+    landerBody.drag.y = PHYSICS.landerDragY
 
     this.thrusterEmitter = game.add.emitter(0, 0, 30)
     this.thrusterEmitter.makeParticles([SPRITES.flameParticle.key])
@@ -48,15 +51,22 @@ export class Lander {
     this.blowUpSignalBinding = game.input.keyboard.addKey(Phaser.Keyboard.Z).onDown.add(() => { this.blowUp() })
   }
 
+  public getBody(): Physics.Arcade.Body | undefined {
+    return this.sprite.body
+  }
+
   public update() {
-    const landerBody = this.sprite.body as Phaser.Physics.Arcade.Body
-    // Update thruster
-    if (this.thrusterEnabled) {
-      landerBody.velocity.add(PHYSICS.landerThrusterForceX, PHYSICS.landerThrusterForceY)
+    const landerBody = this.getBody()
+
+    if (landerBody) {
+      // Update thruster
+      if (this.thrusterEnabled) {
+        landerBody.velocity.add(PHYSICS.landerThrusterForceX, PHYSICS.landerThrusterForceY)
+      }
+      this.thrusterEmitter.setXSpeed(landerBody.velocity.x, landerBody.velocity.x)
+      this.thrusterEmitter.setYSpeed(landerBody.velocity.y, landerBody.velocity.y)
     }
 
-    this.thrusterEmitter.setXSpeed(landerBody.velocity.x, landerBody.velocity.x)
-    this.thrusterEmitter.setYSpeed(landerBody.velocity.y, landerBody.velocity.y)
     this.thrusterEmitter.emitX = this.sprite.x
     this.thrusterEmitter.emitY = this.sprite.y + this.sprite.height / 2
 
@@ -78,6 +88,26 @@ export class Lander {
     this.sprite.destroy(true)
   }
 
+  public blowUp() {
+    if (this.alive) {
+      this.alive = false
+
+      const landerBody = this.getBody()
+      if (landerBody) {
+        landerBody.enable = false
+      }
+
+      this.sprite.visible = false
+
+      this.thrusterEmitter.on = false
+
+      this.explosion.x = this.sprite.x
+      this.explosion.y = this.sprite.y
+      this.explosion.visible = true
+      this.explosion.play(ANIMATIONS.explosion, 24, false, true)
+    }
+  }
+
   private enableThruster() {
     if (this.alive) {
       this.thrusterEnabled = true
@@ -90,22 +120,6 @@ export class Lander {
     if (this.alive) {
       this.thrusterEnabled = false
       this.thrusterEmitter.on = false
-    }
-  }
-
-  private blowUp() {
-    if (this.alive) {
-      this.alive = false
-
-      const landerBody = this.sprite.body as Physics.Arcade.Body
-      landerBody.enable = false
-
-      this.sprite.visible = false
-
-      this.explosion.x = this.sprite.x
-      this.explosion.y = this.sprite.y
-      this.explosion.visible = true
-      this.explosion.play(ANIMATIONS.explosion, 24, false, true)
     }
   }
 }
