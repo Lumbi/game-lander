@@ -7,6 +7,9 @@ const config = {
     path: path.resolve(__dirname, "build"),
     filename: "bundle.js"
   },
+  resolve: {
+    extensions: [".ts", ".js", ".json"]
+  },
   module: {
     rules: [
       { test: /pixi\.js$/, use: "expose-loader?PIXI" },
