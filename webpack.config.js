@@ -15,7 +15,7 @@ const config = {
       { test: /pixi\.js$/, use: "expose-loader?PIXI" },
       { test: /p2\.js$/, use: "expose-loader?p2" },
       { test: /phaser\.js$/, use: "expose-loader?Phaser" },
-      { test: /\.tsx?$/, use: "ts-loader", exclude: /node_modules/ }
+      { test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ }
     ]
   },
   plugins: [new HtmlWebpackPlugin({template: 'src/index.html'})]
