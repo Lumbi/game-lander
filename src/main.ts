@@ -8,14 +8,36 @@ function loadImage(game: Phaser.Game, asset: { key: string, url: string }) {
   game.load.image(asset.key, asset.url)
 }
 
-function createRock(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
-  const sprite = game.add.sprite(x, y, SPRITES.redRock.key)
+function createFixedSprite(game: Phaser.Game, key: string, x: number, y: number): Phaser.Sprite {
+  const sprite = game.add.sprite(x, y, key)
   game.physics.arcade.enableBody(sprite)
   const body = sprite.body as Phaser.Physics.Arcade.Body
   body.immovable = true
   body.allowGravity = false
+  return sprite
+}
+
+function createRock(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
+  const sprite = createFixedSprite(game, SPRITES.redRock.key, x, y)
+  const body = sprite.body as Phaser.Physics.Arcade.Body
   body.setSize(76, 67)
   body.offset = new Phaser.Point(12, 13)
+  return sprite
+}
+
+function createRock2(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
+  const sprite = createFixedSprite(game, SPRITES.redRock2.key, x, y)
+  const body = sprite.body as Phaser.Physics.Arcade.Body
+  body.setSize(76, 67)
+  body.offset = new Phaser.Point(12, 13)
+  return sprite
+}
+
+function createGoal(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
+  const sprite = createFixedSprite(game, SPRITES.goal.key, x, y)
+  const body = sprite.body as Phaser.Physics.Arcade.Body
+  body.setSize(70, 12)
+  body.offset = new Phaser.Point(65, 122)
   return sprite
 }
 
@@ -25,6 +47,7 @@ class Level1 {
   private lander?: Lander
   private landerStart: Phaser.Point
   private rocks: Phaser.Group
+  private goal: Phaser.Sprite
 
   constructor(game: Phaser.Game) {
     this.game = game
@@ -33,12 +56,22 @@ class Level1 {
     game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
 
     this.rocks = game.add.physicsGroup()
-    this.rocks.add(createRock(game, 259, 1620))
-    this.rocks.add(createRock(game, 351, 1637))
-    this.rocks.add(createRock(game, 436, 1627))
     this.rocks.add(createRock(game, 727, 1354))
-    this.rocks.add(createRock(game, 1116, 1690))
+    this.rocks.add(createRock(game, 402, 1653))
+    this.rocks.add(createRock(game, 680, 1513))
+    this.rocks.add(createRock(game, 254, 1620))
     this.rocks.add(createRock(game, 1554, 1583))
+    this.rocks.add(createRock(game, 1116, 1690))
+
+    this.rocks.add(createRock2(game, 2061, 1254))
+    this.rocks.add(createRock2(game, 1554, 1657))
+    this.rocks.add(createRock2(game, 1618, 1607))
+    this.rocks.add(createRock2(game, 744, 1442))
+    this.rocks.add(createRock2(game, 1194, 1003))
+    this.rocks.add(createRock2(game, 1194, 1660))
+    this.rocks.add(createRock2(game, 352, 1606))
+
+    this.goal = createGoal(game, 2604, 1565)
   }
 
   public reset() {
@@ -53,6 +86,7 @@ class Level1 {
         this.game.physics.arcade.collide(lander.sprite, rock, this.onLanderCollision, undefined, this)
       }, this)
 
+      this.game.physics.arcade.collide(lander.sprite, this.goal)
       lander.update()
     }
   }
@@ -93,6 +127,8 @@ class Game {
     loadImage(this.game, SPRITES.background)
     loadImage(this.game, SPRITES.space)
     loadImage(this.game, SPRITES.redRock)
+    loadImage(this.game, SPRITES.redRock2)
+    loadImage(this.game, SPRITES.goal)
 
     this.game.load.spritesheet(SPRITES.explosion.key, SPRITES.explosion.url, 96, 96)
   }

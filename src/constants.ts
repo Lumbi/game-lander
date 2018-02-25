@@ -13,8 +13,10 @@ export const SPRITES = {
   flameParticle: { key: "flameParticle", url: "/assets/part_flame001.png" },
   background: { key: "background", url: "/assets/sky.png" },
   explosion: { key: "explosion", url: "/assets/explosion.png" },
-  space: { key: "space.png", url: "/assets/space.png" },
-  redRock: { key: "red_rock.png", url: "/assets/red_rock.png" },
+  space: { key: "space", url: "/assets/space.png" },
+  redRock: { key: "red_rock", url: "/assets/red_rock.png" },
+  redRock2: { key: "red_rock2", url: "/assets/red_rock2.png" },
+  goal: { key: "goal", url: "/assets/goal.png" },
 }
 
 export const ANIMATIONS = {
