@@ -7,12 +7,15 @@ export class Lander {
   public alive: boolean
 
   private game: Phaser.Game
-  private thrusterEnabled: boolean
+  private leftThrusterEnabled: boolean
+  private rightThrusterEnabled: boolean
   private thrusterEmitter: Phaser.Particles.Arcade.Emitter
   private explosion: Phaser.Sprite
 
-  private enableThrusterSignalBinding: Phaser.SignalBinding
-  private disableThrusterSignalBinding: Phaser.SignalBinding
+  private enableLeftThrusterSignalBinding: Phaser.SignalBinding
+  private disableLeftThrusterSignalBinding: Phaser.SignalBinding
+  private enableRightThrusterSignalBinding: Phaser.SignalBinding
+  private disableRightThrusterSignalBinding: Phaser.SignalBinding
   private blowUpSignalBinding: Phaser.SignalBinding
 
   constructor(game: Phaser.Game, x: number, y: number) {
@@ -23,7 +26,8 @@ export class Lander {
     this.sprite.anchor.x = 0.5
     this.sprite.anchor.y = 0.5
 
-    this.thrusterEnabled = false
+    this.leftThrusterEnabled = false
+    this.rightThrusterEnabled = false
 
     game.physics.arcade.enableBody(this.sprite)
     const landerBody = this.sprite.body as Physics.Arcade.Body
@@ -43,9 +47,12 @@ export class Lander {
     this.explosion.visible = false
     this.explosion.animations.add(ANIMATIONS.explosion)
 
-    const spacebarKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
-    this.enableThrusterSignalBinding = spacebarKey.onDown.add(() => { this.enableThruster() })
-    this.disableThrusterSignalBinding = spacebarKey.onUp.add(() => { this.disableThruster() })
+    const leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT)
+    const rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
+    this.enableLeftThrusterSignalBinding = leftKey.onDown.add(() => { this.enableThruster("left") })
+    this.disableLeftThrusterSignalBinding = leftKey.onUp.add(() => { this.disableThruster("left") })
+    this.enableRightThrusterSignalBinding = rightKey.onDown.add(() => { this.enableThruster("right") })
+    this.disableRightThrusterSignalBinding = rightKey.onUp.add(() => { this.disableThruster("right") })
 
     // TEST
     this.blowUpSignalBinding = game.input.keyboard.addKey(Phaser.Keyboard.Z).onDown.add(() => { this.blowUp() })
@@ -60,8 +67,10 @@ export class Lander {
 
     if (landerBody) {
       // Update thruster
-      if (this.thrusterEnabled) {
+      if (this.rightThrusterEnabled) {
         landerBody.velocity.add(PHYSICS.landerThrusterForceX, PHYSICS.landerThrusterForceY)
+      } else if (this.leftThrusterEnabled) {
+        landerBody.velocity.add(-PHYSICS.landerThrusterForceX, PHYSICS.landerThrusterForceY)
       }
       this.thrusterEmitter.setXSpeed(landerBody.velocity.x, landerBody.velocity.x)
       this.thrusterEmitter.setYSpeed(landerBody.velocity.y, landerBody.velocity.y)
@@ -79,8 +88,10 @@ export class Lander {
   }
 
   public destroy() {
-    this.enableThrusterSignalBinding.detach()
-    this.disableThrusterSignalBinding.detach()
+    this.enableLeftThrusterSignalBinding.detach()
+    this.disableLeftThrusterSignalBinding.detach()
+    this.enableRightThrusterSignalBinding.detach()
+    this.disableRightThrusterSignalBinding.detach()
     this.blowUpSignalBinding.detach()
 
     this.explosion.destroy(true)
@@ -108,17 +119,24 @@ export class Lander {
     }
   }
 
-  private enableThruster() {
+  private enableThruster(which: "left" | "right") {
     if (this.alive) {
-      this.thrusterEnabled = true
+      switch (which) {
+        case "left": this.leftThrusterEnabled = true; break
+        case "right": this.rightThrusterEnabled = true; break
+      }
+
       this.thrusterEmitter.start(false, 400, 60)
       this.thrusterEmitter.on = true
     }
   }
 
-  private disableThruster() {
+  private disableThruster(which: "left" | "right") {
     if (this.alive) {
-      this.thrusterEnabled = false
+      switch (which) {
+        case "left": this.leftThrusterEnabled = false; break
+        case "right": this.rightThrusterEnabled = false; break
+      }
       this.thrusterEmitter.on = false
     }
   }
