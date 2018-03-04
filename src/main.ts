@@ -9,48 +9,17 @@ import { Lander } from "./lander"
 
 import testMapJson = require("../assets/level1.json")
 import testRedRockTileSet = require("../assets/red_rock.json")
+import testGoalTileSet = require("../assets/goal.json")
 import testStarTileSet = require("../assets/star.json")
 
 const tilesets = {
   "red_rock.json": Tiled.tilesetFromJSON(testRedRockTileSet),
   "star.json": Tiled.tilesetFromJSON(testStarTileSet),
+  "goal.json": Tiled.tilesetFromJSON(testGoalTileSet),
 }
 
 function loadImage(game: Phaser.Game, asset: { key: string, url: string }) {
   game.load.image(asset.key, asset.url)
-}
-
-function createFixedSprite(game: Phaser.Game, key: string, x: number, y: number): Phaser.Sprite {
-  const sprite = game.add.sprite(x, y, key)
-  game.physics.arcade.enableBody(sprite)
-  const body = sprite.body as Phaser.Physics.Arcade.Body
-  body.immovable = true
-  body.allowGravity = false
-  return sprite
-}
-
-function createRock(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
-  const sprite = createFixedSprite(game, SPRITES.redRock.key, x, y)
-  const body = sprite.body as Phaser.Physics.Arcade.Body
-  body.setSize(76, 67)
-  body.offset = new Phaser.Point(12, 13)
-  return sprite
-}
-
-function createRock2(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
-  const sprite = createFixedSprite(game, SPRITES.redRock2.key, x, y)
-  const body = sprite.body as Phaser.Physics.Arcade.Body
-  body.setSize(76, 67)
-  body.offset = new Phaser.Point(12, 13)
-  return sprite
-}
-
-function createGoal(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
-  const sprite = createFixedSprite(game, SPRITES.goal.key, x, y)
-  const body = sprite.body as Phaser.Physics.Arcade.Body
-  body.setSize(70, 12)
-  body.offset = new Phaser.Point(65, 122)
-  return sprite
 }
 
 function loadTileset(game: Phaser.Game, source: string, tileset: Tiled.ITileset) {
@@ -79,7 +48,6 @@ class Level1 extends TiledLevel {
   protected onCreate() {
     this.game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
     super.onCreate()
-    createGoal(this.game, 2604, 1565)
     this.reset()
   }
 
