@@ -82,6 +82,12 @@ export interface IObject {
   y: number
 }
 
+export interface IPointObject extends IObject {
+  point: true
+  width: 0
+  height: 0
+}
+
 export interface IRectangleObject extends IObject {
   width: number
   height: number
@@ -111,6 +117,10 @@ export function tileMapfromJSON(json: any): ITiledMap {
 
 export function tilesetFromJSON(json: any): ITileset {
   return json as ITileset
+}
+
+export function isPointObject(object: IObject): object is IPointObject {
+  return (object as IPointObject).point === true
 }
 
 export function isRectangleObject(object: IObject): object is IRectangleObject {

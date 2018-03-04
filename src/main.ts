@@ -3,7 +3,7 @@ import "phaser-ce/build/custom/p2"
 import "phaser-ce"
 import * as _ from "lodash"
 import { ANIMATIONS, PHYSICS, SPRITES } from "./constants"
-import * as Tiled from "./tiled_editor"
+import * as Tiled from "./tiled"
 import { TiledLevel } from "./level"
 import { Lander } from "./lander"
 
@@ -83,6 +83,19 @@ class Level1 extends TiledLevel {
     this.reset()
   }
 
+  protected onLayerLoaded(layer: Tiled.ILayer): void {
+    // TODO
+  }
+  protected onPointLoaded(pointObject: Tiled.IPointObject, point: Phaser.Point): void {
+    if (pointObject.type === "lander_start") {
+      this.landerStart = point
+    }
+  }
+
+  protected onTileLoaded(tile: Tiled.ITileObject, sprite: Phaser.Sprite): void {
+    // TODO
+  }
+
   protected onUpdate() {
     super.onUpdate()
     const lander = this.lander
@@ -98,7 +111,7 @@ class Level1 extends TiledLevel {
 
   protected onRender() {
     super.onRender()
-    if ((window as any).debug || true) {
+    if ((window as any).debug) {
       this.game.world.forEach((child: any) => {
         this.game.debug.body(child)
       }, this)
