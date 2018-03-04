@@ -73,6 +73,7 @@ export abstract class TiledLevel extends Level {
     if (tilesetRef) {
       const tileId = Tiled.getTileId(tileObject, tilesetRef)
       sprite = this.game.add.sprite(tileObject.x, tileObject.y, tilesetRef.source, tileId)
+      sprite.name = tileObject.name
       sprite.rotation = tileObject.rotation
       sprite.visible = tileObject.visible
       const tileset = Tiled.findTileset(tilesetRef, this.tilesets)

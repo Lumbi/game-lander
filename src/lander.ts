@@ -5,6 +5,7 @@ export class Lander {
 
   public readonly sprite: Phaser.Sprite
   public alive: boolean
+  public controlsEnabled: boolean
 
   private game: Phaser.Game
   private leftThrusterEnabled: boolean
@@ -21,6 +22,7 @@ export class Lander {
   constructor(game: Phaser.Game, x: number, y: number) {
     this.game = game
     this.alive = true
+    this.controlsEnabled = true
 
     this.sprite = game.add.sprite(x, y, SPRITES.lander.key)
     this.sprite.anchor.x = 0.5
@@ -65,7 +67,7 @@ export class Lander {
   public update() {
     const landerBody = this.getBody()
 
-    if (landerBody) {
+    if (landerBody && this.controlsEnabled) {
       // Update thruster
       if (this.rightThrusterEnabled) {
         landerBody.velocity.add(PHYSICS.landerThrusterForceX, PHYSICS.landerThrusterForceY)
@@ -120,7 +122,7 @@ export class Lander {
   }
 
   private enableThruster(which: "left" | "right") {
-    if (this.alive) {
+    if (this.alive && this.controlsEnabled) {
       switch (which) {
         case "left": this.leftThrusterEnabled = true; break
         case "right": this.rightThrusterEnabled = true; break

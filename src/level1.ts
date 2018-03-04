@@ -18,14 +18,25 @@ const tilesets = {
 export class Level1 extends TiledLevel {
   private lander?: Lander
   private landerStart: Phaser.Point
+  private goal?: Phaser.Sprite
+  private isTouchingGoal: boolean
+  private goalTouchAccumulator: number
+  private goalReachThreshold = 50
+  private goalReached: boolean
 
   constructor(game: Phaser.Game) {
     super(game, Tiled.tileMapfromJSON(testMapJson), tilesets)
     this.landerStart = new Phaser.Point(286, 1564)
+    this.goalTouchAccumulator = 0
+    this.isTouchingGoal = false
+    this.goalReached = false
   }
 
   public reset() {
     this.lander && this.lander.destroy()
+    this.goalTouchAccumulator = 0
+    this.isTouchingGoal = false
+    this.goalReached = false
     this.lander = new Lander(this.game, this.landerStart.x, this.landerStart.y)
   }
 
@@ -39,6 +50,10 @@ export class Level1 extends TiledLevel {
     this.game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
     super.onCreate()
     this.reset()
+
+    this.goal = this.game.world.filter((child: PIXI.DisplayObject) => {
+      return (child as any).name === "goal"
+    }).first
   }
 
   protected onLayerLoaded(layer: Tiled.ILayer): void {
@@ -56,6 +71,7 @@ export class Level1 extends TiledLevel {
 
   protected onUpdate() {
     super.onUpdate()
+    this.isTouchingGoal = false
     const lander = this.lander
     if (lander) {
       this.game.world.filter((child: Phaser.Sprite) => {
@@ -63,6 +79,13 @@ export class Level1 extends TiledLevel {
       }).list.forEach((child: Phaser.Sprite) => {
         this.game.physics.arcade.collide(lander.sprite, child, this.onLanderCollision, undefined, this)
       }, this)
+
+      if (!this.isTouchingGoal) {
+        this.goalTouchAccumulator = 0
+      } else if (this.goalTouchAccumulator >= this.goalReachThreshold) {
+        this.onGoalReached()
+      }
+
       lander.update()
     }
   }
@@ -76,11 +99,27 @@ export class Level1 extends TiledLevel {
     }
   }
 
-  private onLanderCollision() {
+  private onLanderCollision(landerSprite: Phaser.Sprite, otherSprite: Phaser.Sprite) {
     if (this.lander) {
       const landerBody = this.lander.getBody()
       if (landerBody && landerBody.speed > 300) {
         this.lander && this.lander.blowUp()
+      } else if (otherSprite === this.goal) {
+        this.goalTouchAccumulator++
+        this.isTouchingGoal = true
+      }
+    }
+  }
+
+  private onGoalReached() {
+    if (!this.goalReached) {
+      this.goalReached = true
+      if (this.lander) {
+        this.lander.controlsEnabled = false
+        const winText = this.game.add.text(-this.lander.sprite.width / 2,
+                                           -this.lander.sprite.height,
+                                           "YOU WIN!!", { fill: "#FFFFFF" })
+        this.lander.sprite.addChild(winText)
       }
     }
   }

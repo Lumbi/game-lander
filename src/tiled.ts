@@ -74,7 +74,7 @@ export function isObjectGroup(layer: ILayer): layer is IObjectGroup {
 
 export interface IObject {
   id: number
-  name: number
+  name: string
   rotation: number
   type: string
   visible: boolean
