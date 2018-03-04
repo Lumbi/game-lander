@@ -891,7 +891,7 @@
                  "name":"",
                  "point":true,
                  "rotation":0,
-                 "type":"start",
+                 "type":"lander_start",
                  "visible":true,
                  "width":0,
                  "x":512,

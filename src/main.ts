@@ -7,7 +7,7 @@ import * as Tiled from "./tiled_editor"
 import { TiledLevel } from "./level"
 import { Lander } from "./lander"
 
-import testMapJson = require("../assets/test.json")
+import testMapJson = require("../assets/level1.json")
 import testRedRockTileSet = require("../assets/red_rock.json")
 import testStarTileSet = require("../assets/star.json")
 
