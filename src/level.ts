@@ -22,6 +22,10 @@ export abstract class Level {
     this.waypoints = []
   }
 
+  public preload() {
+    this.onPreload()
+  }
+
   public create() {
     this.onCreate()
   }
@@ -33,6 +37,8 @@ export abstract class Level {
   public render() {
     this.onRender()
   }
+
+  protected abstract onPreload(): void
 
   protected abstract onCreate(): void
 
