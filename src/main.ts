@@ -1,8 +1,20 @@
 import "phaser-ce/build/custom/pixi"
 import "phaser-ce/build/custom/p2"
 import "phaser-ce"
+import * as _ from "lodash"
 import { ANIMATIONS, PHYSICS, SPRITES } from "./constants"
+import * as Tiled from "./tiled_editor"
+import { TiledLevel } from "./level"
 import { Lander } from "./lander"
+
+import testMapJson = require("../assets/test.json")
+import testRedRockTileSet = require("../assets/red_rock.json")
+import testStarTileSet = require("../assets/star.json")
+
+const tilesets = {
+  "red_rock.json": Tiled.tilesetFromJSON(testRedRockTileSet),
+  "star.json": Tiled.tilesetFromJSON(testStarTileSet),
+}
 
 function loadImage(game: Phaser.Game, asset: { key: string, url: string }) {
   game.load.image(asset.key, asset.url)
@@ -41,37 +53,22 @@ function createGoal(game: Phaser.Game, x: number, y: number): Phaser.Sprite {
   return sprite
 }
 
-class Level1 {
+function loadTileset(game: Phaser.Game, source: string, tileset: Tiled.ITileset) {
+  game.load.spritesheet(
+    source,
+    `/assets/${tileset.image}`,
+    tileset.tilewidth, tileset.tileheight, tileset.tilecount,
+    tileset.margin, tileset.spacing,
+  )
+}
 
-  private game: Phaser.Game
+class Level1 extends TiledLevel {
   private lander?: Lander
   private landerStart: Phaser.Point
-  private rocks: Phaser.Group
-  private goal: Phaser.Sprite
 
   constructor(game: Phaser.Game) {
-    this.game = game
+    super(game, Tiled.tileMapfromJSON(testMapJson), tilesets)
     this.landerStart = new Phaser.Point(286, 1564)
-
-    game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
-
-    this.rocks = game.add.physicsGroup()
-    this.rocks.add(createRock(game, 727, 1354))
-    this.rocks.add(createRock(game, 402, 1653))
-    this.rocks.add(createRock(game, 680, 1513))
-    this.rocks.add(createRock(game, 254, 1620))
-    this.rocks.add(createRock(game, 1554, 1583))
-    this.rocks.add(createRock(game, 1116, 1690))
-
-    this.rocks.add(createRock2(game, 2061, 1254))
-    this.rocks.add(createRock2(game, 1554, 1657))
-    this.rocks.add(createRock2(game, 1618, 1607))
-    this.rocks.add(createRock2(game, 744, 1442))
-    this.rocks.add(createRock2(game, 1194, 1003))
-    this.rocks.add(createRock2(game, 1194, 1660))
-    this.rocks.add(createRock2(game, 352, 1606))
-
-    this.goal = createGoal(game, 2604, 1565)
   }
 
   public reset() {
@@ -79,23 +76,33 @@ class Level1 {
     this.lander = new Lander(this.game, this.landerStart.x, this.landerStart.y)
   }
 
-  public update() {
+  protected onCreate() {
+    this.game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
+    super.onCreate()
+    createGoal(this.game, 2604, 1565)
+    this.reset()
+  }
+
+  protected onUpdate() {
+    super.onUpdate()
     const lander = this.lander
     if (lander) {
-      this.rocks.forEach((rock: Phaser.Sprite) => {
-        this.game.physics.arcade.collide(lander.sprite, rock, this.onLanderCollision, undefined, this)
+      this.game.world.filter((child: Phaser.Sprite) => {
+        return child !== lander.sprite && child.body
+      }).list.forEach((child: Phaser.Sprite) => {
+        this.game.physics.arcade.collide(lander.sprite, child, this.onLanderCollision, undefined, this)
       }, this)
-
-      this.game.physics.arcade.collide(lander.sprite, this.goal)
       lander.update()
     }
   }
 
-  public render() {
-    // this.lander && this.game.debug.body(this.lander.sprite)
-    // this.rocks.forEach((rock: Phaser.Sprite) => {
-    //   this.game.debug.body(rock)
-    // }, this)
+  protected onRender() {
+    super.onRender()
+    if ((window as any).debug || true) {
+      this.game.world.forEach((child: any) => {
+        this.game.debug.body(child)
+      }, this)
+    }
   }
 
   private onLanderCollision() {
@@ -131,19 +138,22 @@ class Game {
     loadImage(this.game, SPRITES.goal)
 
     this.game.load.spritesheet(SPRITES.explosion.key, SPRITES.explosion.url, 96, 96)
+
+    _(tilesets).forEach((tileset, source) => {
+      loadTileset(this.game, source, tileset)
+    })
   }
 
   private create() {
-
     this.game.physics.startSystem(Phaser.Physics.ARCADE)
     this.game.world.setBounds(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight)
     this.game.physics.arcade.gravity.y = PHYSICS.gravityY
 
+    this.level1 = new Level1(this.game)
+    this.level1 && this.level1.create()
+
     // TEST
     this.game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(() => this.level1 && this.level1.reset(), this)
-
-    this.level1 = new Level1(this.game)
-    this.level1 && this.level1.reset()
   }
 
   private update() {

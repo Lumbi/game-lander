@@ -1,0 +1,12 @@
+{ "columns":1,
+ "image":"star.png",
+ "imageheight":22,
+ "imagewidth":24,
+ "margin":0,
+ "name":"star",
+ "spacing":0,
+ "tilecount":1,
+ "tileheight":22,
+ "tilewidth":24,
+ "type":"tileset"
+}
