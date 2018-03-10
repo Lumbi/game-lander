@@ -80,6 +80,7 @@ export abstract class TiledLevel extends Level {
       if (tileset && tileset.tiles) {
         const tileGroups = tileset.tiles[tileId]
         if (tileGroups) {
+          sprite.name = sprite.name || tileGroups.type || ""
           for (const tileSubobject of tileGroups.objectgroup.objects) {
             if (Tiled.isRectangleObject(tileSubobject)) {
               if (tileSubobject.type === "collider") {

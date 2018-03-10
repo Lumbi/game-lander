@@ -21,8 +21,11 @@ export class Level1 extends TiledLevel {
   private goal?: Phaser.Sprite
   private isTouchingGoal: boolean
   private goalTouchAccumulator: number
-  private goalReachThreshold = 50
+  private readonly goalReachThreshold = 50
   private goalReached: boolean
+  private collectedStarCount: number
+  private starCountText?: Phaser.Text
+  private maxStarCount: number
 
   constructor(game: Phaser.Game) {
     super(game, Tiled.tileMapfromJSON(testMapJson), tilesets)
@@ -30,6 +33,8 @@ export class Level1 extends TiledLevel {
     this.goalTouchAccumulator = 0
     this.isTouchingGoal = false
     this.goalReached = false
+    this.collectedStarCount = 0
+    this.maxStarCount = 0
   }
 
   public reset() {
@@ -37,6 +42,7 @@ export class Level1 extends TiledLevel {
     this.goalTouchAccumulator = 0
     this.isTouchingGoal = false
     this.goalReached = false
+    this.collectedStarCount = 0
     this.lander = new Lander(this.game, this.landerStart.x, this.landerStart.y)
   }
 
@@ -49,6 +55,8 @@ export class Level1 extends TiledLevel {
   protected onCreate() {
     this.game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
     super.onCreate()
+    this.maxStarCount = this.game.world.filter((child: any) => child.name === "collectible_star" ).list.length
+    this.starCountText = this.game.add.text(0, 0, "", { fill: "#FFFFFF" })
     this.reset()
 
     this.goal = this.game.world.filter((child: PIXI.DisplayObject) => {
@@ -86,6 +94,8 @@ export class Level1 extends TiledLevel {
         this.onGoalReached()
       }
 
+      this.updateCollectStars(lander)
+
       lander.update()
     }
   }
@@ -122,6 +132,34 @@ export class Level1 extends TiledLevel {
         this.lander.sprite.addChild(winText)
       }
     }
+  }
+
+  private updateCollectStars(lander: Lander) {
+    this.game.world.filter((child: any) => {
+      return child.name === "collectible_star"
+    }).list.forEach((star: Phaser.Sprite) => {
+      const landerBounds = (lander.sprite.getBounds() as any) as Phaser.Rectangle
+      const starBounds = (star.getBounds() as any) as Phaser.Rectangle
+      if (Phaser.Rectangle.intersects(landerBounds, starBounds)) {
+        this.collectStar(star)
+      }
+    }, this)
+
+    if (this.starCountText) {
+      this.starCountText.position.x = lander.sprite.position.x
+      this.starCountText.position.y = lander.sprite.position.y + (lander.sprite.height / 2)
+      if (this.maxStarCount > 0 && lander.alive) {
+        this.starCountText.visible = true
+        this.starCountText.text = `${this.collectedStarCount}/${this.maxStarCount}`
+      } else {
+        this.starCountText.visible = false
+      }
+    }
+  }
+
+  private collectStar(star: Phaser.Sprite) {
+    this.collectedStarCount++
+    star.destroy()
   }
 }
 
