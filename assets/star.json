@@ -7,6 +7,24 @@
  "spacing":0,
  "tilecount":1,
  "tileheight":22,
+ "tiles":
+    {
+     "0":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "name":"",
+             "objects":[],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            },
+         "type":"collectible_star"
+        }
+    },
  "tilewidth":24,
  "type":"tileset"
 }
