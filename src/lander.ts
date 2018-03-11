@@ -37,6 +37,10 @@ export class Lander {
     landerBody.allowRotation = false
     landerBody.drag.x = PHYSICS.landerDragX
     landerBody.drag.y = PHYSICS.landerDragY
+    landerBody.width = 34
+    landerBody.height = 22
+    landerBody.offset.x = 13
+    landerBody.offset.y = 16
 
     this.thrusterEmitter = game.add.emitter(0, 0, 30)
     this.thrusterEmitter.makeParticles([SPRITES.flameParticle.key])
