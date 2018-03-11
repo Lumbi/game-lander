@@ -2,8 +2,8 @@ export const PHYSICS = {
   worldWidth: 3000,
   worldHeight: 3000,
   gravityY: 500,
-  landerThrusterForceX: 6,
-  landerThrusterForceY: -20,
+  landerThrusterForceX: 15,
+  landerThrusterForceY: -25,
   landerDragX: 100,
   landerDragY: 50,
 }
