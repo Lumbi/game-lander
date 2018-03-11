@@ -28,7 +28,7 @@ export interface ITileset {
   tilewidth: number,
   tiles?: {
     [tileId: string]: {
-      objectgroup: IObjectGroup,
+      objectgroup?: IObjectGroup,
       type?: string,
     },
   }

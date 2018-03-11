@@ -78,21 +78,23 @@ export abstract class TiledLevel extends Level {
       sprite.visible = tileObject.visible
       const tileset = Tiled.findTileset(tilesetRef, this.tilesets)
       if (tileset && tileset.tiles) {
-        const tileGroups = tileset.tiles[tileId]
-        if (tileGroups) {
-          sprite.name = sprite.name || tileGroups.type || ""
-          for (const tileSubobject of tileGroups.objectgroup.objects) {
-            if (Tiled.isRectangleObject(tileSubobject)) {
-              if (tileSubobject.type === "collider") {
-                if (sprite) {
-                  this.game.physics.enable(sprite)
-                  const body = sprite.body as Phaser.Physics.Arcade.Body
-                  body.offset.x = tileSubobject.x
-                  body.offset.y = tileSubobject.y
-                  body.width = tileSubobject.width
-                  body.height = tileSubobject.height
-                  body.immovable = true
-                  body.allowGravity = false
+        const tileGroup = tileset.tiles[tileId]
+        if (tileGroup) {
+          sprite.name = sprite.name || tileGroup.type || ""
+          if (tileGroup.objectgroup) {
+            for (const tileSubobject of tileGroup.objectgroup.objects) {
+              if (Tiled.isRectangleObject(tileSubobject)) {
+                if (tileSubobject.type === "collider") {
+                  if (sprite) {
+                    this.game.physics.enable(sprite)
+                    const body = sprite.body as Phaser.Physics.Arcade.Body
+                    body.offset.x = tileSubobject.x
+                    body.offset.y = tileSubobject.y
+                    body.width = tileSubobject.width
+                    body.height = tileSubobject.height
+                    body.immovable = true
+                    body.allowGravity = false
+                  }
                 }
               }
             }
