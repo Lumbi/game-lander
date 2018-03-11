@@ -17,6 +17,11 @@ export const SPRITES = {
   redRock: { key: "red_rock", url: "/assets/red_rock.png" },
   redRock2: { key: "red_rock2", url: "/assets/red_rock2.png" },
   goal: { key: "goal", url: "/assets/goal.png" },
+  enemyBullet: { key: "enemy_bullet", url: "/assets/enemy_bullet.png" },
+}
+
+export const NAMES = {
+  enemyBullet: "enemy_bullet",
 }
 
 export const ANIMATIONS = {

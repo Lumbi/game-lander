@@ -30,6 +30,7 @@ class Game {
     loadImage(this.game, SPRITES.redRock)
     loadImage(this.game, SPRITES.redRock2)
     loadImage(this.game, SPRITES.goal)
+    loadImage(this.game, SPRITES.enemyBullet)
 
     this.game.load.spritesheet(SPRITES.explosion.key, SPRITES.explosion.url, 96, 96)
 
