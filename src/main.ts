@@ -3,6 +3,7 @@ import "phaser-ce/build/custom/p2"
 import "phaser-ce"
 import * as _ from "lodash"
 import { PHYSICS, SPRITES } from "./constants"
+import { Level } from "./level"
 import { Level1 } from "./level1"
 
 function loadImage(game: Phaser.Game, asset: { key: string, url: string }) {
@@ -11,7 +12,7 @@ function loadImage(game: Phaser.Game, asset: { key: string, url: string }) {
 
 class Game {
   private game: Phaser.Game
-  private level1?: Level1
+  private currentLevel?: Level
 
   constructor() {
     this.game = new Phaser.Game("100", "100", Phaser.AUTO, "",
@@ -36,7 +37,7 @@ class Game {
 
     const level1 = new Level1(this.game)
     level1.preload()
-    this.level1 = level1
+    this.currentLevel = level1
   }
 
   private create() {
@@ -44,18 +45,24 @@ class Game {
     this.game.world.setBounds(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight)
     this.game.physics.arcade.gravity.y = PHYSICS.gravityY
 
-    this.level1 && this.level1.create()
+    this.currentLevel && this.currentLevel.create()
 
     // TEST
-    this.game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(() => this.level1 && this.level1.reset(), this)
+    this.game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(() => {
+      if (this.currentLevel) {
+        this.currentLevel.destroy()
+        this.currentLevel = new Level1(this.game)
+        this.currentLevel.create()
+      }
+    }, this)
   }
 
   private update() {
-    this.level1 && this.level1.update()
+    this.currentLevel && this.currentLevel.update()
   }
 
   private render() {
-    this.level1 && this.level1.render()
+    this.currentLevel && this.currentLevel.render()
   }
 }
 

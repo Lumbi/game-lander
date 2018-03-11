@@ -40,31 +40,52 @@ export class Level1 extends TiledLevel {
     this.maxStarCount = 0
   }
 
-  public reset() {
-    this.lander && this.lander.destroy()
-    this.goalTouchAccumulator = 0
-    this.isTouchingGoal = false
-    this.goalReached = false
-    this.collectedStarCount = 0
-    this.lander = new Lander(this.game, this.landerStart.x, this.landerStart.y)
-  }
-
-  protected onPreload() {
+  public preload() {
     _(tilesets).forEach((tileset, source) => {
       loadTileset(this.game, source, tileset)
     })
   }
 
-  protected onCreate() {
+  public create() {
     this.game.add.tileSprite(0, 0, PHYSICS.worldWidth, PHYSICS.worldHeight, SPRITES.space.key)
-    super.onCreate()
+    super.create()
     this.maxStarCount = this.game.world.filter((child: any) => child.name === "collectible_star" ).list.length
     this.starCountText = this.game.add.text(0, 0, "", { fill: "#FFFFFF" })
-    this.reset()
+    this.lander = new Lander(this.game, this.landerStart.x, this.landerStart.y)
+    this.game.world.add(this.lander)
 
     this.goal = this.game.world.filter((child: PIXI.DisplayObject) => {
       return (child as any).name === "goal"
     }).first
+  }
+
+  public update() {
+    this.isTouchingGoal = false
+    const lander = this.lander
+    if (lander) {
+      this.game.world.filter((child: Phaser.Sprite) => {
+        return child !== lander && child.body
+      }).list.forEach((child: Phaser.Sprite) => {
+        this.game.physics.arcade.collide(lander, child, this.onLanderCollision, undefined, this)
+      }, this)
+
+      if (!this.isTouchingGoal) {
+        this.goalTouchAccumulator = 0
+      } else if (this.goalTouchAccumulator >= this.goalReachThreshold) {
+        this.onGoalReached()
+      }
+
+      this.updateCollectStars(lander)
+
+    }
+  }
+
+  public render() {
+    if ((window as any).debug) {
+      this.game.world.forEach((child: any) => {
+        this.game.debug.body(child)
+      }, this)
+    }
   }
 
   protected onLayerLoaded(layer: Tiled.ILayer): void {
@@ -79,38 +100,6 @@ export class Level1 extends TiledLevel {
   protected onTileLoaded(tile: Tiled.ITileObject, sprite: Phaser.Sprite): void {
     if (sprite.name === "enemy_tower") {
       this.game.world.add(new EnemyTower(this.game, sprite))
-    }
-  }
-
-  protected onUpdate() {
-    super.onUpdate()
-    this.isTouchingGoal = false
-    const lander = this.lander
-    if (lander) {
-      this.game.world.filter((child: Phaser.Sprite) => {
-        return child !== lander.sprite && child.body
-      }).list.forEach((child: Phaser.Sprite) => {
-        this.game.physics.arcade.collide(lander.sprite, child, this.onLanderCollision, undefined, this)
-      }, this)
-
-      if (!this.isTouchingGoal) {
-        this.goalTouchAccumulator = 0
-      } else if (this.goalTouchAccumulator >= this.goalReachThreshold) {
-        this.onGoalReached()
-      }
-
-      this.updateCollectStars(lander)
-
-      lander.update()
-    }
-  }
-
-  protected onRender() {
-    super.onRender()
-    if ((window as any).debug) {
-      this.game.world.forEach((child: any) => {
-        this.game.debug.body(child)
-      }, this)
     }
   }
 
@@ -133,10 +122,10 @@ export class Level1 extends TiledLevel {
       this.goalReached = true
       if (this.lander) {
         this.lander.controlsEnabled = false
-        const winText = this.game.add.text(-this.lander.sprite.width / 2,
-                                           -this.lander.sprite.height,
+        const winText = this.game.add.text(-this.lander.width / 2,
+                                           -this.lander.height,
                                            "YOU WIN!!", { fill: "#FFFFFF" })
-        this.lander.sprite.addChild(winText)
+        this.lander.addChild(winText)
       }
     }
   }
@@ -145,7 +134,7 @@ export class Level1 extends TiledLevel {
     this.game.world.filter((child: any) => {
       return child.name === "collectible_star"
     }).list.forEach((star: Phaser.Sprite) => {
-      const landerBounds = (lander.sprite.getBounds() as any) as Phaser.Rectangle
+      const landerBounds = (lander.getBounds() as any) as Phaser.Rectangle
       const starBounds = (star.getBounds() as any) as Phaser.Rectangle
       if (Phaser.Rectangle.intersects(landerBounds, starBounds)) {
         this.collectStar(star)
@@ -153,8 +142,8 @@ export class Level1 extends TiledLevel {
     }, this)
 
     if (this.starCountText) {
-      this.starCountText.position.x = lander.sprite.position.x
-      this.starCountText.position.y = lander.sprite.position.y + (lander.sprite.height / 2)
+      this.starCountText.position.x = lander.position.x
+      this.starCountText.position.y = lander.position.y + (lander.height / 2)
       if (this.maxStarCount > 0 && lander.alive) {
         this.starCountText.visible = true
         this.starCountText.text = `${this.collectedStarCount}/${this.maxStarCount}`

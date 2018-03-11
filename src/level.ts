@@ -22,29 +22,14 @@ export abstract class Level {
     this.waypoints = []
   }
 
-  public preload() {
-    this.onPreload()
+  public abstract preload(): void
+  public abstract create(): void
+  public abstract update(): void
+  public abstract render(): void
+
+  public destroy() {
+    this.game.world.removeAll(true)
   }
-
-  public create() {
-    this.onCreate()
-  }
-
-  public update() {
-    this.onUpdate()
-  }
-
-  public render() {
-    this.onRender()
-  }
-
-  protected abstract onPreload(): void
-
-  protected abstract onCreate(): void
-
-  protected abstract onUpdate(): void
-
-  protected abstract onRender(): void
 }
 
 export abstract class TiledLevel extends Level {
@@ -57,6 +42,21 @@ export abstract class TiledLevel extends Level {
 
     this.map = map
     this.tilesets = tilesets
+  }
+
+  public create(): void {
+    this.map.layers.forEach((layer) => {
+      this.loadLayer(layer)
+      if (Tiled.isObjectGroup(layer)) {
+        layer.objects.forEach((object) => {
+          if (Tiled.isPointObject(object)) {
+            this.loadPoint(object)
+          } else if (Tiled.isTileObject(object)) {
+            this.loadTile(object)
+          }
+        })
+      }
+    })
   }
 
   protected loadLayer(layerObject: Tiled.ILayer) {
@@ -107,32 +107,9 @@ export abstract class TiledLevel extends Level {
     }
   }
 
-  protected onCreate(): void {
-    this.map.layers.forEach((layer) => {
-      this.loadLayer(layer)
-      if (Tiled.isObjectGroup(layer)) {
-        layer.objects.forEach((object) => {
-          if (Tiled.isPointObject(object)) {
-            this.loadPoint(object)
-          } else if (Tiled.isTileObject(object)) {
-            this.loadTile(object)
-          }
-        })
-      }
-    })
-  }
-
   protected abstract onLayerLoaded(layer: Tiled.ILayer): void
 
   protected abstract onPointLoaded(pointObject: Tiled.IPointObject, point: Phaser.Point): void
 
   protected abstract onTileLoaded(tile: Tiled.ITileObject, sprite: Phaser.Sprite): void
-
-  protected onUpdate(): void {
-    // TODO
-  }
-
-  protected onRender(): void {
-    // TODO
-  }
 }

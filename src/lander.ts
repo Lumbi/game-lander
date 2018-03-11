@@ -1,13 +1,11 @@
 import { Physics } from "phaser-ce"
 import { ANIMATIONS, PHYSICS, SPRITES } from "./constants"
 
-export class Lander {
+export class Lander extends Phaser.Sprite {
 
-  public readonly sprite: Phaser.Sprite
   public alive: boolean
   public controlsEnabled: boolean
 
-  private game: Phaser.Game
   private leftThrusterEnabled: boolean
   private rightThrusterEnabled: boolean
   private thrusterEmitter: Phaser.Particles.Arcade.Emitter
@@ -20,19 +18,19 @@ export class Lander {
   private blowUpSignalBinding: Phaser.SignalBinding
 
   constructor(game: Phaser.Game, x: number, y: number) {
+    super(game, x, y, SPRITES.lander.key)
     this.game = game
     this.alive = true
     this.controlsEnabled = true
 
-    this.sprite = game.add.sprite(x, y, SPRITES.lander.key)
-    this.sprite.anchor.x = 0.5
-    this.sprite.anchor.y = 0.5
+    this.anchor.x = 0.5
+    this.anchor.y = 0.5
 
     this.leftThrusterEnabled = false
     this.rightThrusterEnabled = false
 
-    game.physics.arcade.enableBody(this.sprite)
-    const landerBody = this.sprite.body as Physics.Arcade.Body
+    game.physics.arcade.enableBody(this)
+    const landerBody = this.body as Physics.Arcade.Body
     landerBody.collideWorldBounds = true
     landerBody.allowRotation = false
     landerBody.drag.x = PHYSICS.landerDragX
@@ -41,6 +39,8 @@ export class Lander {
     landerBody.height = 22
     landerBody.offset.x = 13
     landerBody.offset.y = 16
+    landerBody.position.x = this.position.x
+    landerBody.position.y = this.position.y
 
     this.thrusterEmitter = game.add.emitter(0, 0, 30)
     this.thrusterEmitter.makeParticles([SPRITES.flameParticle.key])
@@ -65,12 +65,12 @@ export class Lander {
   }
 
   public getBody(): Physics.Arcade.Body | undefined {
-    return this.sprite.body
+    return this.body
   }
 
   public update() {
+    super.update()
     const landerBody = this.getBody()
-
     if (landerBody && this.controlsEnabled) {
       // Update thruster
       if (this.rightThrusterEnabled) {
@@ -82,15 +82,11 @@ export class Lander {
       this.thrusterEmitter.setYSpeed(landerBody.velocity.y, landerBody.velocity.y)
     }
 
-    this.thrusterEmitter.emitX = this.sprite.x
-    this.thrusterEmitter.emitY = this.sprite.y + this.sprite.height / 2
+    this.thrusterEmitter.emitX = this.x
+    this.thrusterEmitter.emitY = this.y + this.height / 2
 
     // Update camera
-    this.game.camera.follow(this.sprite)
-  }
-
-  public render() {
-    // TODO
+    this.game.camera.follow(this)
   }
 
   public destroy() {
@@ -99,10 +95,7 @@ export class Lander {
     this.enableRightThrusterSignalBinding.detach()
     this.disableRightThrusterSignalBinding.detach()
     this.blowUpSignalBinding.detach()
-
-    this.explosion.destroy(true)
-    this.thrusterEmitter.destroy(true)
-    this.sprite.destroy(true)
+    super.destroy()
   }
 
   public blowUp() {
@@ -114,12 +107,12 @@ export class Lander {
         landerBody.enable = false
       }
 
-      this.sprite.visible = false
+      this.visible = false
 
       this.thrusterEmitter.on = false
 
-      this.explosion.x = this.sprite.x
-      this.explosion.y = this.sprite.y
+      this.explosion.x = this.x
+      this.explosion.y = this.y
       this.explosion.visible = true
       this.explosion.play(ANIMATIONS.explosion, 24, false, true)
     }
