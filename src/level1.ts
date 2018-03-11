@@ -1,18 +1,21 @@
 import * as _ from "lodash"
-import { ANIMATIONS, PHYSICS, SPRITES } from "./constants"
+import { ANIMATIONS, NAMES, PHYSICS, SPRITES } from "./constants"
 import * as Tiled from "./tiled"
 import { TiledLevel } from "./level"
 import { Lander } from "./lander"
+import { EnemyTower } from "./enemy_tower"
 
 import testMapJson = require("../assets/level1.json")
 import testRedRockTileSet = require("../assets/red_rock.json")
 import testGoalTileSet = require("../assets/goal.json")
 import testStarTileSet = require("../assets/star.json")
+import testEnemyTowerTileSet = require("../assets/enemy_tower.json")
 
 const tilesets = {
   "red_rock.json": Tiled.tilesetFromJSON(testRedRockTileSet),
   "star.json": Tiled.tilesetFromJSON(testStarTileSet),
   "goal.json": Tiled.tilesetFromJSON(testGoalTileSet),
+  "enemy_tower.json": Tiled.tilesetFromJSON(testEnemyTowerTileSet),
 }
 
 export class Level1 extends TiledLevel {
@@ -74,7 +77,9 @@ export class Level1 extends TiledLevel {
   }
 
   protected onTileLoaded(tile: Tiled.ITileObject, sprite: Phaser.Sprite): void {
-    // TODO
+    if (sprite.name === "enemy_tower") {
+      this.game.world.add(new EnemyTower(this.game, sprite))
+    }
   }
 
   protected onUpdate() {
@@ -113,7 +118,9 @@ export class Level1 extends TiledLevel {
     if (this.lander) {
       const landerBody = this.lander.getBody()
       if (landerBody && landerBody.speed > 300) {
-        this.lander && this.lander.blowUp()
+        this.lander.blowUp()
+      } else if (landerBody && otherSprite.name === NAMES.enemyBullet) {
+        this.lander.blowUp()
       } else if (otherSprite === this.goal) {
         this.goalTouchAccumulator++
         this.isTouchingGoal = true
