@@ -1,0 +1,19 @@
+{ "columns":1,
+ "image":"enemy_tower.png",
+ "imageheight":32,
+ "imagewidth":32,
+ "margin":0,
+ "name":"enemy_tower",
+ "spacing":0,
+ "tilecount":1,
+ "tileheight":32,
+ "tiles":
+    {
+     "0":
+        {
+         "type":"enemy_tower"
+        }
+    },
+ "tilewidth":32,
+ "type":"tileset"
+}
